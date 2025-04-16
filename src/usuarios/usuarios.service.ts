@@ -186,7 +186,7 @@ export class UsuariosService {
       url: process.env.LDAP_SERVER,
     });
     try {
-      await client.bind(`${process.env.USER_LDAP}${process.env.LDAP_DOMAIN}`, process.env.PASS_LDAP);
+      await client.bind(`${process.env.LDAP_USER}${process.env.LDAP_DOMAIN}`, process.env.LDAP_PASS);
     } catch (error) {
       throw new InternalServerErrorException('Não foi possível buscar o usuário.');
     }
@@ -225,7 +225,7 @@ export class UsuariosService {
       url: process.env.LDAP_SERVER,
     });
     try {
-      await client.bind(`${process.env.USER_LDAP}${process.env.LDAP_DOMAIN}`, process.env.PASS_LDAP);
+      await client.bind(`${process.env.LDAP_USER}${process.env.LDAP_DOMAIN}`, process.env.LDAP_PASS);
     } catch (error) {
       throw new InternalServerErrorException('Não foi possível buscar o usuário.');
     }

@@ -575,8 +575,8 @@ describe('Usuarios.service testes unitários', () => {
     });
 
     expect(mockLdapBind).toHaveBeenCalledWith(
-      `${process.env.USER_LDAP}${process.env.LDAP_DOMAIN}`,
-      process.env.PASS_LDAP,
+      `${process.env.LDAP_USER}${process.env.LDAP_DOMAIN}`,
+      process.env.LDAP_PASS,
     );
   });
 
