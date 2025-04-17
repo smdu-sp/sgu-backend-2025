@@ -52,16 +52,6 @@ export class UsuariosService {
     return lista;
   }
 
-  async buscarTecnicos(): Promise<{ id: string, nome: string }[]> {
-    const lista: { id: string, nome: string }[] = await this.prisma.usuario.findMany({
-      where: { permissao: 'TEC' },
-      orderBy: { nome: 'asc' },
-      select: { id: true, nome: true },
-    });
-    if (!lista || lista.length == 0) throw new ForbiddenException('Nenhum técnico encontrado.');
-    return lista;
-  }
-
   async criar(
     createUsuarioDto: CreateUsuarioDto,
     usuarioLogado: Usuario
@@ -255,5 +245,13 @@ export class UsuariosService {
       where: { id },
       data: { ultimoLogin: new Date() },
     });
+  }
+
+  async importar(arquivo: Express.Multer.File) {
+    try {
+      console.log(arquivo);
+    } catch (error) {
+
+    }
   }
 }
