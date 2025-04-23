@@ -26,25 +26,25 @@
             <div class="info-section">
                 <div class="info-row">
                     <div class="info-item">
-                        <p><span>NOME:</span> </p>
+                        <p><span>NOME:</span> {{nome}} </p>
                     </div>
                     <div class="info-item">
-                        <p><span>RF:</span> - <span>VÍNCULO:</span> </p>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <div class="info-item">
-                        <p><span>EH:</span> </p>
+                        <p><span>RF: {{rf}}</span> - <span>VÍNCULO:</span> {{vinculo}}</p>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-item">
-                        <p><span>UNIDADE:</span> </p>
+                        <p><span>EH:</span> {{codigo-unidade}}</p>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-item">
-                        <p><span>MÊS / ANO REFERENCIA:</span></p>
+                        <p><span>UNIDADE:</span>{{unidade}} </p>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <p><span>MÊS / ANO REFERENCIA:</span> {{mes-ano}}</p>
                     </div>
                 </div>
             </div>
@@ -60,19 +60,17 @@
                     <tr>
                         <th rowspan="3">DIA</th>
                         <th colspan="4">HORÁRIO</th>
-                        <th rowspan="3" class="day-table--last-column">ASSINATURA</th>
-                        <th rowspan="3" class="day-table--last-column">OBSERVAÇÕES</th>
+                        <th rowspan="3">ASSINATURA</th>
+                        <th rowspan="3">OBSERVAÇÕES</th>
                     </tr>
                     <tr>
-                        <th class="day-table--sub-column">ENTRADA</th>
-                        <th colspan="2" class="day-table--sub-column">ALMOÇO</th>
-                        <th class="day-table--sub-column">SAÍDA</th>
+                        <th rowspan="2">ENTRADA</th>
+                        <th colspan="2">ALMOÇO</th>
+                        <th rowspan="2">SAÍDA</th>
                     </tr>
                     <tr>
-                        <th></th>
                         <th>SAÍDA</th>
                         <th>ENTRADA</th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
