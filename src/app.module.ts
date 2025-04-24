@@ -7,11 +7,13 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RoleGuard } from './auth/guards/role.guard';
 import { FuncionariosModule } from './funcionarios/funcionarios.module';
+import { FolhaModule } from './folha/folha.module';
+import { CompiladorHTML } from './folha/utils/compiladorHTML';
 
 @Global()
 @Module({
   exports: [AppService],
-  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule],
+  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, CompiladorHTML],
   providers: [AppService,
     {
       provide: APP_GUARD,
