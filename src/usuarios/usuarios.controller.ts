@@ -1,25 +1,32 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Query,
-  UseInterceptors,
   UploadedFile,
+  UseInterceptors
 } from '@nestjs/common';
-import { UsuariosService } from './usuarios.service';
-import { CreateUsuarioDto } from './dto/create-usuario.dto';
-import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Usuario } from '@prisma/client';
+import { IsPublic } from 'src/auth/decorators/is-public.decorator';
 import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { UsuarioAtual } from 'src/auth/decorators/usuario-atual.decorator';
-import { Usuario } from '@prisma/client';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { BuscarNovoResponseDTO, UsuarioAutorizadoResponseDTO, UsuarioDesativadoResponseDTO, UsuarioPaginadoResponseDTO, UsuarioResponseDTO } from './dto/usuario-response.dto';
+import { CreateUsuarioDto } from './dto/create-usuario.dto';
+import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import {
+  BuscarNovoResponseDTO,
+  UsuarioAutorizadoResponseDTO,
+  UsuarioDesativadoResponseDTO,
+  UsuarioPaginadoResponseDTO,
+  UsuarioResponseDTO,
+} from './dto/usuario-response.dto';
 import { UsuariosInterceptor } from './interceptors/usuarios.interceptor';
-import { IsPublic } from 'src/auth/decorators/is-public.decorator';
+import { UsuariosService } from './usuarios.service';
+
 
 @ApiTags('Usuarios')
 @ApiBearerAuth()
@@ -45,7 +52,13 @@ export class UsuariosController {
     @Query('status') status?: string,
     @Query('permissao') permissao?: string,
   ): Promise<UsuarioPaginadoResponseDTO> {
-    return this.usuariosService.buscarTudo(+pagina, +limite, busca, status, permissao);
+    return this.usuariosService.buscarTudo(
+      +pagina,
+      +limite,
+      busca,
+      status,
+      permissao,
+    );
   }
 
   @Permissoes('ADM')
@@ -59,7 +72,7 @@ export class UsuariosController {
   atualizar(
     @UsuarioAtual() usuario: Usuario,
     @Param('id') id: string,
-    @Body() updateUsuarioDto: UpdateUsuarioDto
+    @Body() updateUsuarioDto: UpdateUsuarioDto,
   ): Promise<UsuarioResponseDTO> {
     return this.usuariosService.atualizar(usuario, id, updateUsuarioDto);
   }
@@ -78,7 +91,9 @@ export class UsuariosController {
 
   @Permissoes('ADM')
   @Patch('autorizar/:id')
-  autorizarUsuario(@Param('id') id: string): Promise<UsuarioAutorizadoResponseDTO> {
+  autorizarUsuario(
+    @Param('id') id: string,
+  ): Promise<UsuarioAutorizadoResponseDTO> {
     return this.usuariosService.autorizaUsuario(id);
   }
 
@@ -96,7 +111,11 @@ export class UsuariosController {
   @IsPublic()
   @Post('importar')
   @UseInterceptors(UsuariosInterceptor)
-  async importar(@UploadedFile() arquivo: Express.Multer.File) {
-    return await this.usuariosService.importar(arquivo);
+  async importar(
+    @Query('mes') mes: number,
+    @Query('ano') ano: number,
+    @UploadedFile() arquivo: Express.Multer.File,
+  ) {
+    return await this.usuariosService.importar(mes, ano, arquivo);
   }
 }
