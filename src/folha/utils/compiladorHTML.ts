@@ -17,7 +17,7 @@ export class CompiladorHTML {
         return template(data);
     }
 
-    async generateFolhaPonto(data: any): Promise<string> {
+    async generaFolhaPonto(data: any): Promise<string> {
         return this.compilador('template', data);
       }
 }
