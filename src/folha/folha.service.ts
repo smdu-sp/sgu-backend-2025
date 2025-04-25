@@ -1,12 +1,14 @@
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Global, Injectable } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
-import { CompiladorHTML } from './utils/compiladorHTML';
 import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
 import { FolhaIndividualDto } from './dto/folhas.dto';
 import { UsuarioResponseDTO } from 'src/usuarios/dto/usuario-response.dto';
+import { UnidadesService } from 'src/unidades/unidades.service';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
+import { gerarFolhaPonto, criarTemplateTeste } from './utils/compiladorHTML';
+import fs from "fs/promises"
 
 @Global()
 @Injectable()
@@ -15,7 +17,9 @@ export class FolhaService {
     private prismaService: PrismaService,
     private usuarioService: UsuariosService,
     private funcionarioService: FuncionariosService,
-  ) {}
+    private unidadeService: UnidadesService,
+
+  ) { }
 
   getMesAno(dataString?: string): { mes: string; ano: string } {
     if (dataString) {
@@ -61,8 +65,22 @@ export class FolhaService {
 
   async gerarFolhaIndividual(data: FolhaIndividualDto) {
     const user = await this.getUsuario(data.id);
-    console.log(user);
-    const res = this.getMesAno(data.data);
-    return res;
+    const mesAno = this.getMesAno(data.data);
+    const funcionario = await this.funcionarioService.buscarPorId(user.id)
+    const unidade = await this.unidadeService.buscarPorCodigo(user.codigoUnidade)
+
+    const paramsCompile = {
+      nome: user.nome,
+      data: `${mesAno.mes}/${mesAno.ano}`,
+      rf: funcionario.rf,
+      eh: user.codigoUnidade,
+      unidade: unidade.nome,
+      vinculo: '1'
+    }
+
+    const htmlCompilado = await gerarFolhaPonto(paramsCompile)
+    await criarTemplateTeste(htmlCompilado, `${user.nome}-${mesAno.mes}-${mesAno.ano}.f-f-i.html`)
+
+    return mesAno;
   }
 }

@@ -24,6 +24,8 @@ export class UsuarioResponseDTO {
     criadoEm: Date
     @ApiProperty()
     atualizadoEm: Date
+    @ApiProperty()
+    codigoUnidade: string
 }
 
 export class UsuarioPaginadoResponseDTO {

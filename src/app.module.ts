@@ -8,12 +8,12 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RoleGuard } from './auth/guards/role.guard';
 import { FuncionariosModule } from './funcionarios/funcionarios.module';
 import { FolhaModule } from './folha/folha.module';
-import { CompiladorHTML } from './folha/utils/compiladorHTML';
+import { UnidadesModule } from './unidades/unidades.module';
 
 @Global()
 @Module({
   exports: [AppService],
-  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, CompiladorHTML],
+  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, UnidadesModule],
   providers: [AppService,
     {
       provide: APP_GUARD,
@@ -25,4 +25,4 @@ import { CompiladorHTML } from './folha/utils/compiladorHTML';
     },
   ],
 })
-export class AppModule {}
+export class AppModule { }
