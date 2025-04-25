@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
@@ -16,6 +18,8 @@ import { UsuarioAtual } from 'src/auth/decorators/usuario-atual.decorator';
 import { Usuario } from '@prisma/client';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { BuscarNovoResponseDTO, UsuarioAutorizadoResponseDTO, UsuarioDesativadoResponseDTO, UsuarioPaginadoResponseDTO, UsuarioResponseDTO } from './dto/usuario-response.dto';
+import { UsuariosInterceptor } from './interceptors/usuarios.interceptor';
+import { IsPublic } from 'src/auth/decorators/is-public.decorator';
 
 @ApiTags('Usuarios')
 @ApiBearerAuth()
@@ -67,12 +71,6 @@ export class UsuariosController {
   }
 
   @Permissoes('ADM')
-  @Get('buscar-tecnicos')
-  buscarTecnicos(): Promise<{ id: string, nome: string }[]> {
-    return this.usuariosService.buscarTecnicos();
-  }
-
-  @Permissoes('ADM')
   @Delete('desativar/:id')
   excluir(@Param('id') id: string): Promise<UsuarioDesativadoResponseDTO> {
     return this.usuariosService.excluir(id);
@@ -93,5 +91,12 @@ export class UsuariosController {
   @Get('buscar-novo/:login')
   buscarNovo(@Param('login') login: string): Promise<BuscarNovoResponseDTO> {
     return this.usuariosService.buscarNovo(login);
+  }
+
+  @IsPublic()
+  @Post('importar')
+  @UseInterceptors(UsuariosInterceptor)
+  async importar(@UploadedFile() arquivo: Express.Multer.File) {
+    return await this.usuariosService.importar(arquivo);
   }
 }

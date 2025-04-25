@@ -1,7 +1,7 @@
 <p align="center">
   <a href="https://www.prefeitura.sp.gov.br/cidade/secretarias/licenciamento/" target="blank"><img src="https://www.prefeitura.sp.gov.br/cidade/secretarias/upload/chamadas/URBANISMO_E_LICENCIAMENTO_HORIZONTAL_FUNDO_CLARO_1665756993.png" width="200" alt="SMUL Logo" /></a>
 </p>
-<p align="center">Base de desenvolvimento Backend - SMUL/ATIC</p>
+<p align="center">Sistema de Gestão de Pessoas Backend - SMUL/ATIC</p>
 
 ## Tecnologias
 
