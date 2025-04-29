@@ -1,76 +1,71 @@
 import { chromium } from 'playwright';
-import * as fs from 'fs';
 import * as path from 'path';
+import * as fs from 'fs/promises';
 
-export async function playwright(htmlFilePath: string, outputPdfPath: string) {
-    console.log('Iniciando geração de PDF...');
-    console.log('Caminho do HTML:', htmlFilePath);
-    console.log('Caminho do PDF:', outputPdfPath);
+export async function gerarPDFFolhaViaURL(nomeArquivoHtml: string) {
+    const url = `http://127.0.0.1:5500/src/folha/templates/folha-ponto/${encodeURIComponent(nomeArquivoHtml)}`;
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
 
-    // Verificar se o arquivo HTML existe
-    if (!fs.existsSync(htmlFilePath)) {
-        throw new Error(`Arquivo HTML não encontrado: ${htmlFilePath}`);
-    }
+    await page.goto(url, { waitUntil: 'networkidle' });
 
-    // Garantir que o diretório do PDF exista
-    const pdfDir = path.dirname(outputPdfPath);
-    if (!fs.existsSync(pdfDir)) {
-        fs.mkdirSync(pdfDir, { recursive: true });
-        console.log(`Diretório para PDF criado: ${pdfDir}`);
-    }
+    const nomeArquivoPDF = nomeArquivoHtml.replace('.html', '.pdf');
+    const caminhoPDF = path.join(process.cwd(), 'src/folha/templates/folha-ponto', nomeArquivoPDF);
 
-    // Iniciar o navegador com opções específicas
-    const browser = await chromium.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    await page.pdf({
+        path: caminhoPDF,
+        format: 'A4',
+        printBackground: true,
     });
 
+    await browser.close();
+    return caminhoPDF;
+}
+
+export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string) {
     try {
-        const context = await browser.newContext();
-        const page = await context.newPage();
+        const templatesDir = path.join(
+            process.cwd(), 'src/folha/templates/folha-ponto'
+        );
 
-        // Usar o protocolo file:// com o caminho absoluto
-        const fileUrl = `file://${htmlFilePath}`;
-        console.log('URL do arquivo:', fileUrl);
+        // console.log('templatesDir', templatesDir)
 
-        await page.goto(fileUrl, {
-            waitUntil: 'networkidle',
-            timeout: 60000 // Aumentar o timeout para 60 segundos
-        });
+        const caminhoHTML = path.join(templatesDir, nomeArquivoHtml);
 
-        // Aguardar para garantir que o CSS seja carregado
-        await page.waitForTimeout(2000);
+        // console.log('caminhoHTML', caminhoHTML)
 
-        // Verificar se há erros de carregamento
-        const errors = await page.evaluate(() => {
-            return {
-                cssLoaded: document.styleSheets.length > 0,
-                imagesLoaded: Array.from(document.images).every(img => img.complete)
-            };
-        });
+        await fs.access(caminhoHTML);
 
-        console.log('Status de carregamento:', errors);
+        const conteudoHTML = await fs.readFile(caminhoHTML, 'utf-8');
 
-        // Gerar o PDF
+        // console.log('conteudoHTML', conteudoHTML)
+
+        const browser = await chromium.launch();
+        const page = await browser.newPage();
+
+        await page.setContent(conteudoHTML, { waitUntil: 'load' });
+
+        const caminhoCSS = path.join(templatesDir, 'styles.css');
+        await page.addStyleTag({ path: caminhoCSS });
+
+        // console.log('caminhoCSS', caminhoCSS)
+
+        const nomeArquivoPDF = nomeArquivoHtml.replace('.html', '.pdf');
+        // console.log('nomeArquivoPDF', nomeArquivoPDF)
+        const caminhoPDF = path.join(templatesDir, nomeArquivoPDF);
+        // console.log('caminhoPDF', caminhoPDF)
+
         await page.pdf({
-            path: outputPdfPath,
+            path: caminhoPDF,
             format: 'A4',
             printBackground: true,
-            margin: {
-                top: '20px',
-                right: '20px',
-                bottom: '20px',
-                left: '20px'
-            }
         });
 
-        console.log(`PDF gerado com sucesso: ${outputPdfPath}`);
-        return outputPdfPath;
-    } catch (error) {
-        console.error('Erro detalhado ao gerar PDF:', error);
-        throw error;
-    } finally {
         await browser.close();
-        console.log('Navegador fechado');
+        return caminhoPDF;
+
+    } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        throw error;
     }
 }
