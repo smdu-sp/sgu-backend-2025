@@ -8,7 +8,7 @@ import { UnidadesService } from 'src/unidades/unidades.service';
 import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { gerarFolhaPonto, gerarArquivoHTML } from './utils/compiladorHTML';
-import { gerarPDFFolhaViaURL, gerarPDFFolhaViaHTML } from './utils/playwright';
+import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import * as fs from "fs/promises"
 import * as path from "path"
 
