@@ -9,8 +9,8 @@ import { HttpException } from '@nestjs/common';
 import { HttpStatus } from '@nestjs/common';
 import { gerarFolhaPonto, gerarArquivoHTML } from './utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
-import * as fs from "fs/promises"
-import * as path from "path"
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 @Global()
 @Injectable()
@@ -20,8 +20,7 @@ export class FolhaService {
     private usuarioService: UsuariosService,
     private funcionarioService: FuncionariosService,
     private unidadeService: UnidadesService,
-
-  ) { }
+  ) {}
 
   getMesAno(dataString?: string): { mes: string; ano: string } {
     if (dataString) {
@@ -47,7 +46,6 @@ export class FolhaService {
   }
 
   async getUsuario(userId: string): Promise<UsuarioResponseDTO> {
-
     try {
       const user = await this.usuarioService.buscarPorId(userId);
       return user;
@@ -67,7 +65,20 @@ export class FolhaService {
     const user = await this.getUsuario(data.id);
     const mesAno = this.getMesAno(data.data);
     const funcionario = await this.funcionarioService.buscarPorId(user.id);
-    const unidade = await this.unidadeService.buscarPorCodigo(user.codigoUnidade);
+    const unidade = await this.unidadeService.buscarPorCodigo(
+      user.codigoUnidade,
+    );
+    const logoPath = path.join(
+      process.cwd(),
+      'src',
+      'folha',
+      'templates',
+      'assets',
+      'logosp.webp',
+    );
+    const logoBuffer = await fs.readFile(logoPath);
+    const logoBase64 = logoBuffer.toString('base64');
+    const logoDataURI = `data:image/webp;base64,${logoBase64}`;
 
     const paramsCompile = {
       nome: user.nome,
@@ -76,23 +87,25 @@ export class FolhaService {
       eh: user.codigoUnidade,
       unidade: unidade.nome,
       vinculo: '1',
+      logo: logoDataURI,
     };
 
     const nomeArquivo = `${user.nome}-${mesAno.mes}-${mesAno.ano}.f-f-i.html`;
-    // const caminhoHTML = `./src/folha/templates/folha-ponto/${nomeArquivo}`;
-
 
     const htmlCompilado = await gerarFolhaPonto(paramsCompile);
 
     await gerarArquivoHTML(htmlCompilado, nomeArquivo);
 
-    const caminhoHTML = path.join(process.cwd(), 'src/folha/templates/folha-ponto', nomeArquivo);
-    // console.log('caminhoHTML', caminhoHTML)
+    const caminhoHTML = path.join(
+      process.cwd(),
+      'src/folha/templates/folha-ponto',
+      nomeArquivo,
+    );
 
-    // console.log('Caminho completo:', path.resolve(caminhoHTML));
-    const existe = await fs.access(caminhoHTML).then(() => true).catch(() => false);
-    // console.log('O HTML existe?', existe);
-
+    const existe = await fs
+      .access(caminhoHTML)
+      .then(() => true)
+      .catch(() => false);
     try {
       await fs.access(caminhoHTML);
 

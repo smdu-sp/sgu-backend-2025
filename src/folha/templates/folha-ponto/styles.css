@@ -9,14 +9,13 @@ body {
   padding: 5mm;
   font-size: 8pt;
   width: 206mm; 
-  height: 322mm; /* Reduzido em mais 2cm (20mm) de 342mm para 322mm */
+  height: 297mm; 
   box-sizing: border-box;
   border: 1px solid #000;
   page-break-inside: avoid;
   break-inside: avoid;
 }
 
-/* Remover a borda do container principal, já que o body terá a borda */
 .container {
   width: 100%;
   margin: 0 auto;
@@ -35,9 +34,9 @@ body {
 }
 
 img {
-  width: 60mm;
+  width: 50mm;
   height: auto;
-  max-height: 12mm;
+  max-height: 10mm;
   page-break-inside: avoid;
   break-inside: avoid;
 }
@@ -145,7 +144,7 @@ img {
   padding: 0.3mm;
   text-align: center;
   vertical-align: middle;
-  height: 3.5mm;
+  height: 4.6mm;
 }
 
 .day-table th {
@@ -215,15 +214,16 @@ img {
 }
 
 .signature-section {
-  margin-top: 10mm;
+  margin-top: 5mm;
   text-align: center;
-  margin-bottom: 2mm;
+  margin-bottom: 25mm;
 }
 
 .signature-line {
   border-top: 1px solid #000;
-  width: 60%;
+  width: 40%;
   margin: 0 auto 1mm;
+  margin-top: 5mm;
 }
 
 .signature-section p {
@@ -234,7 +234,7 @@ img {
 @media print {
   html, body {
     width: 210mm;
-    height: 327mm; /* Reduzido em mais 2cm (20mm) de 347mm para 327mm */
+    height: 297mm; 
     page-break-inside: avoid;
     break-inside: avoid;
   }
