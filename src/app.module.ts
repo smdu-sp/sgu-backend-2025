@@ -9,11 +9,12 @@ import { RoleGuard } from './auth/guards/role.guard';
 import { FuncionariosModule } from './funcionarios/funcionarios.module';
 import { FolhaModule } from './folha/folha.module';
 import { UnidadesModule } from './unidades/unidades.module';
+import { FeriadosModule } from './feriados/feriados.module';
 
 @Global()
 @Module({
   exports: [AppService],
-  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, UnidadesModule],
+  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, UnidadesModule, FeriadosModule],
   providers: [AppService,
     {
       provide: APP_GUARD,
