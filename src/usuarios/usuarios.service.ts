@@ -73,7 +73,11 @@ export class UsuariosService {
     const usuario: Usuario = await this.prisma.usuario.create({
       data: {
         ...createUsuarioDto,
-        permissao
+        permissao,
+        funcionario: { create: {
+          rf: 'teste',
+          vinculo: 1
+        }},
       },
     });
     if (!usuario) throw new InternalServerErrorException('Não foi possível criar o usuário, tente novamente.');
@@ -129,7 +133,6 @@ export class UsuariosService {
   async buscarPorLogin(login: string): Promise<UsuarioResponseDTO> {
     return await this.prisma.usuario.findUnique({ where: { login }});
   }
-
 
   async atualizar(
     usuario: Usuario,

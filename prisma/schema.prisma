@@ -14,83 +14,100 @@ enum Permissao {
 }
 
 model Usuario {
-  id            String    @id @default(uuid())
+  id            String        @id @default(uuid())
   nome          String
   nomeSocial    String?
-  login         String    @unique
-  email         String    @unique
-  permissao     Permissao @default(USR)
-  status        Boolean   @default(true)
-  avatar        String?   @db.Text
-  estagiario    Boolean   @default(false)
+  login         String        @unique
+  email         String        @unique
+  permissao     Permissao     @default(USR)
+  status        Boolean       @default(true)
+  avatar        String?       @db.Text
+  estagiario    Boolean       @default(false)
   codigoUnidade String
 
-  ultimoLogin  DateTime @default(now())
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @default(now()) @updatedAt
+  ultimoLogin   DateTime      @default(now())
+  criadoEm      DateTime      @default(now())
+  atualizadoEm  DateTime      @default(now()) @updatedAt
 
-  funcionario Funcionario?
-  unidade     Unidade?     @relation(fields: [codigoUnidade], references: [codigo])
+  funcionario   Funcionario?
+  unidade       Unidade?      @relation(fields: [codigoUnidade], references: [codigo])
+  cargos        Cargo[]
 
   @@map("usuarios")
 }
 
 model Funcionario {
-  usuarioId  String  @id @unique
-  rf         String  @unique
-  vinculo    Int     @unique
-  nomeCargo  String
-  refCargo   String
-  observacao String?
+  usuarioId     String    @unique
+  rf            String    @unique
+  vinculo       Int
+  observacao    String?
 
-  usuario Usuario @relation(fields: [usuarioId], references: [id])
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @default(now()) @updatedAt
+
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id])
 
   @@map("funcionarios")
 }
 
+model Cargo {
+  id            String    @id @default(uuid())
+  nomeCargo     String
+  refCargo      String
+  observacao    String?
+  usuarioId     String
+
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @default(now()) @updatedAt
+
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id])
+
+  @@map("cargos")
+}
+
 model Unidade {
-  codigo String  @id @unique
-  nome   String  @unique
-  sigla  String  @unique
-  status Boolean @default(true)
+  codigo        String    @id @unique
+  nome          String    @unique
+  sigla         String    @unique
+  status        Boolean   @default(true)
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @default(now()) @updatedAt
+  criadoEm      DateTime  @default(now())
+  atualizadoEm  DateTime  @default(now()) @updatedAt
 
-  usuarios Usuario[]
+  usuarios      Usuario[]
 
   @@map("unidades")
 }
 
 model CargaSigpec {
-  id          String    @id @default(uuid())
-  rf          String
-  nome        String?
-  vinculo     String?
-  especie     String?
-  inicio      DateTime? @db.Date
-  termino     DateTime? @db.Date
-  cargo       String?
-  nomeCargo   String?
-  refCargo    String?
-  unidade     String?
-  nomeSetor   String?
-  relJurAdm   String?
-  tipoEvento  String?
-  inicioExerc DateTime? @db.Date
-  titular     String?
-  numVincTit  String?
-  nomeFuncTit String?
-  inicioRem   DateTime? @db.Date
-  fimRem      DateTime? @db.Date
-  observacao  String?   @db.Text
-  vaga        String?
+  id            String    @id @default(uuid())
+  rf            String
+  nome          String?
+  vinculo       String?
+  especie       String?
+  inicio        DateTime? @db.Date
+  termino       DateTime? @db.Date
+  cargo         String?
+  nomeCargo     String?
+  refCargo      String?
+  unidade       String?
+  nomeSetor     String?
+  relJurAdm     String?
+  tipoEvento    String?
+  inicioExerc   DateTime? @db.Date
+  titular       String?
+  numVincTit    String?
+  nomeFuncTit   String?
+  inicioRem     DateTime? @db.Date
+  fimRem        DateTime? @db.Date
+  observacao    String?   @db.Text
+  vaga          String?
 
-  mes Int
-  ano Int
+  mes           Int
+  ano           Int
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @default(now()) @updatedAt
+  criadoEm      DateTime   @default(now())
+  atualizadoEm  DateTime   @default(now()) @updatedAt
 
   @@map("cargas_sigpec")
 }
@@ -103,26 +120,26 @@ enum TipoFeriado {
 }
 
 model Feriado {
-  id        String      @id @default(uuid())
-  data      DateTime    @unique @db.Date
-  tipo      TipoFeriado
-  descricao String?
+  id            String      @id @default(uuid())
+  data          DateTime    @unique @db.Date
+  tipo          TipoFeriado
+  descricao     String?
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @default(now()) @updatedAt
+  criadoEm      DateTime    @default(now())
+  atualizadoEm  DateTime    @default(now()) @updatedAt
 
   @@map("feriados")
 }
 
 model FeriadoRecorrente {
-  id        String      @id @default(uuid())
-  dia       Int
-  mes       Int
-  tipo      TipoFeriado
-  descricao String?
+  id            String      @id @default(uuid())
+  dia           Int
+  mes           Int
+  tipo          TipoFeriado
+  descricao     String?
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @default(now()) @updatedAt
+  criadoEm      DateTime    @default(now())
+  atualizadoEm  DateTime    @default(now()) @updatedAt
 
   @@map("feriados_recorrentes")
 }
