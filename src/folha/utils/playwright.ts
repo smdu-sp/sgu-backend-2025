@@ -5,7 +5,7 @@ import * as fs from 'fs/promises';
 export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string) {
     try {
         const templatesDir = path.join(
-            process.cwd(), 'src/folha/templates/folha-ponto'
+            process.cwd(), 'src/folha/templates/folha-servidor'
         );
 
         const pdfDir = path.join(

@@ -2,7 +2,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Global, Injectable } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
-import { FolhaIndividualDto } from './dto/folhas.dto';
+import { FolhaIndividualDto, FolhaPorSetorDto } from './dto/folhas.dto';
 import { UsuarioResponseDTO } from 'src/usuarios/dto/usuario-response.dto';
 import { UnidadesService } from 'src/unidades/unidades.service';
 import { HttpException } from '@nestjs/common';
@@ -20,7 +20,7 @@ export class FolhaService {
     private usuarioService: UsuariosService,
     private funcionarioService: FuncionariosService,
     private unidadeService: UnidadesService,
-  ) {}
+  ) { }
 
   getMesAno(dataString?: string): { mes: string; ano: string } {
     if (dataString) {
@@ -36,33 +36,20 @@ export class FolhaService {
     } else {
       const dataPonto = new Date();
 
-      const ano = dataPonto.getFullYear();
-      const mes = dataPonto.toLocaleDateString('pt-BR', { month: 'long' });
+      const ano = (dataPonto.getFullYear()).toString();
+      let mes = (dataPonto.getMonth() + 1).toString();
+      if (Number(mes) <= 9) {
+        mes = `0${mes}`
+      }
       return {
-        mes: mes.charAt(0).toUpperCase() + mes.slice(1),
-        ano: ano.toString(),
+        mes: mes,
+        ano: ano,
       };
     }
   }
 
-  async getUsuario(userId: string): Promise<UsuarioResponseDTO> {
-    try {
-      const user = await this.usuarioService.buscarPorId(userId);
-      return user;
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Falha ao processar a folha',
-          message: error.message,
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-  }
-
   async gerarFolhaIndividual(data: FolhaIndividualDto) {
-    const user = await this.getUsuario(data.id);
+    const user = await this.usuarioService.buscarPorId(data.id)
     const mesAno = this.getMesAno(data.data);
     const funcionario = await this.funcionarioService.buscarPorId(user.id);
     const unidade = await this.unidadeService.buscarPorCodigo(
@@ -81,7 +68,7 @@ export class FolhaService {
     const logoDataURI = `data:image/webp;base64,${logoBase64}`;
 
     const paramsCompile = {
-      nome: user.nome,
+      nome: user.nome.toLocaleUpperCase(),
       data: `${mesAno.mes}/${mesAno.ano}`,
       rf: funcionario.rf,
       eh: user.codigoUnidade,
@@ -91,29 +78,24 @@ export class FolhaService {
     };
 
     const nomeArquivo = `${user.nome}-${mesAno.mes}-${mesAno.ano}.f-f-i.html`;
-
     const htmlCompilado = await gerarFolhaPonto(paramsCompile);
 
     await gerarArquivoHTML(htmlCompilado, nomeArquivo);
 
     const caminhoHTML = path.join(
       process.cwd(),
-      'src/folha/templates/folha-ponto',
+      'src/folha/templates/folha-servidor',
       nomeArquivo,
     );
 
-    const existe = await fs
-      .access(caminhoHTML)
-      .then(() => true)
-      .catch(() => false);
     try {
       await fs.access(caminhoHTML);
-
       await gerarPDFFolhaViaHTML(nomeArquivo);
     } catch (err) {
       throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
     }
-
     return mesAno;
   }
+
+
 }

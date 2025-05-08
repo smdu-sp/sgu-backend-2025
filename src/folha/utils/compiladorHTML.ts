@@ -5,8 +5,8 @@ import * as handlebars from "handlebars";
 const templatesDir = path.join(
     process.cwd(),
     process.env.NODE_ENV === 'production'
-        ? 'dist/src/folha/templates/folha-ponto'
-        : 'src/folha/templates/folha-ponto'
+        ? 'dist/src/folha/templates/folha-servidor'
+        : 'src/folha/templates/folha-servidor'
 );
 
 export async function compilarHTML(nomeTemplate: string, data: any) {
