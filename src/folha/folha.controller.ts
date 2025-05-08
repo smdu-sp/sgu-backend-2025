@@ -6,13 +6,21 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @ApiBearerAuth()
 @Controller('folhas')
 export class FolhaController {
-  constructor(private folhaService: FolhaService) {}
+  constructor(private folhaService: FolhaService) { }
 
   @Post(['folha-individual/:userId', 'folha-individual/:userId/:data'])
   gerarFolhaIndividual(
     @Param('userId') userId: string,
-    @Param('data') data?: string,
+    @Param('periodo') periodo?: string,
   ) {
-    return this.folhaService.gerarFolhaIndividual({ id: userId, data: data });
+    return this.folhaService.gerarFolhaIndividual({ id: userId, periodo: periodo });
+  }
+
+  @Post(['folha-setor/:codigoUnidade', 'folha-setor/:codigoUnidade/:periodo'])
+  gerarFolhaPorSetor(
+    @Param('codigoUnidade') codigoUnidade: string,
+    @Param('periodo') periodo?: string,
+  ) {
+    return this.folhaService.gerarFolhaPorSetor({ codigoUnidade, periodo })
   }
 }

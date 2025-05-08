@@ -3,10 +3,7 @@ import { Global, Injectable } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
 import { FolhaIndividualDto, FolhaPorSetorDto } from './dto/folhas.dto';
-import { UsuarioResponseDTO } from 'src/usuarios/dto/usuario-response.dto';
 import { UnidadesService } from 'src/unidades/unidades.service';
-import { HttpException } from '@nestjs/common';
-import { HttpStatus } from '@nestjs/common';
 import { gerarFolhaPonto, gerarArquivoHTML } from './utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import * as fs from 'fs/promises';
@@ -48,10 +45,11 @@ export class FolhaService {
     }
   }
 
-  async gerarFolhaIndividual(data: FolhaIndividualDto) {
-    const user = await this.usuarioService.buscarPorId(data.id)
-    const mesAno = this.getMesAno(data.data);
-    const funcionario = await this.funcionarioService.buscarPorId(user.id);
+  async getCompile(userId: string, periodo: string) {
+
+    const mesAno = this.getMesAno(periodo);
+    const user = await this.usuarioService.buscarPorId(userId)
+    const funcionario = await this.funcionarioService.buscarPorId(userId)
     const unidade = await this.unidadeService.buscarPorCodigo(
       user.codigoUnidade,
     );
@@ -69,7 +67,7 @@ export class FolhaService {
 
     const paramsCompile = {
       nome: user.nome.toLocaleUpperCase(),
-      data: `${mesAno.mes}/${mesAno.ano}`,
+      periodo: `${mesAno.mes}/${mesAno.ano}`,
       rf: funcionario.rf,
       eh: user.codigoUnidade,
       unidade: unidade.nome,
@@ -77,8 +75,17 @@ export class FolhaService {
       logo: logoDataURI,
     };
 
-    const nomeArquivo = `${user.nome}-${mesAno.mes}-${mesAno.ano}.f-f-i.html`;
+    return paramsCompile
+  }
+
+  async gerarFolhaIndividual(data: FolhaIndividualDto) {
+
+    const paramsCompile = await this.getCompile(data.id, data.periodo)
+
+    const nomeArquivo = `${paramsCompile.nome}_f-f-i.html`;
     const htmlCompilado = await gerarFolhaPonto(paramsCompile);
+
+    console.log(paramsCompile)
 
     await gerarArquivoHTML(htmlCompilado, nomeArquivo);
 
@@ -94,7 +101,15 @@ export class FolhaService {
     } catch (err) {
       throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
     }
-    return mesAno;
+    return `Folha do ${paramsCompile.nome} foi gerada com sucesso`;
+  }
+
+  async gerarFolhaPorSetor(data: FolhaPorSetorDto) {
+    const mesAno = this.getMesAno(data.periodo)
+    const lista = this.usuarioService.buscarTudo(1, -1, data.codigoUnidade, "1")
+
+    return lista
+
   }
 
 

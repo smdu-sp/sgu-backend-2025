@@ -1,8 +1,9 @@
 export class FolhaIndividualDto {
     id: string;
-    data?: string
+    periodo?: string
 }
 
-export class FolhaPorSetorDto extends FolhaIndividualDto {
+export class FolhaPorSetorDto {
     codigoUnidade: string;
+    periodo?: string
 }
