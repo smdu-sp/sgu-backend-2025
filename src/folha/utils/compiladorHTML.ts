@@ -23,4 +23,4 @@ export async function gerarFolhaPonto(data: any): Promise<string> {
 export async function gerarArquivoHTML(conteudo: string, nomeArquivo: string): Promise<void> {
     const caminhoTeste = path.join(templatesDir, nomeArquivo);
     await fs.writeFile(caminhoTeste, conteudo);
-}
+}  

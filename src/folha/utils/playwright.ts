@@ -8,6 +8,10 @@ export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string) {
             process.cwd(), 'src/folha/templates/folha-ponto'
         );
 
+        const pdfDir = path.join(
+            process.cwd(), 'src/folha/pdfs'
+        )
+
         const caminhoHTML = path.join(templatesDir, nomeArquivoHtml);
 
         await fs.access(caminhoHTML);
@@ -22,9 +26,8 @@ export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string) {
         const caminhoCSS = path.join(templatesDir, 'styles.css');
         await page.addStyleTag({ path: caminhoCSS });
 
-
         const nomeArquivoPDF = nomeArquivoHtml.replace('.html', '.pdf');
-        const caminhoPDF = path.join(templatesDir, nomeArquivoPDF);
+        const caminhoPDF = path.join(pdfDir, nomeArquivoPDF);
 
         await page.pdf({
             path: caminhoPDF,
