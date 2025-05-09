@@ -4,7 +4,7 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
 import { FolhaIndividualDto, FolhaPorSetorDto } from './dto/folhas.dto';
 import { UnidadesService } from 'src/unidades/unidades.service';
-import { gerarFolhaPonto, gerarArquivoHTML } from './utils/compiladorHTML';
+import { gerarFolhaPontoHTML, gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor } from './utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -78,14 +78,14 @@ export class FolhaService {
     return paramsCompile
   }
 
+
+
   async gerarFolhaIndividual(data: FolhaIndividualDto) {
 
     const paramsCompile = await this.getCompile(data.id, data.periodo)
 
     const nomeArquivo = `${paramsCompile.nome}_f-f-i.html`;
-    const htmlCompilado = await gerarFolhaPonto(paramsCompile);
-
-    console.log(paramsCompile)
+    const htmlCompilado = await gerarFolhaPontoHTML(paramsCompile);
 
     await gerarArquivoHTML(htmlCompilado, nomeArquivo);
 
@@ -104,12 +104,38 @@ export class FolhaService {
     return `Folha do ${paramsCompile.nome} foi gerada com sucesso`;
   }
 
-  async gerarFolhaPorSetor(data: FolhaPorSetorDto) {
-    const mesAno = this.getMesAno(data.periodo)
-    const lista = this.usuarioService.buscarTudo(1, -1, data.codigoUnidade, "1")
+  ////////////////////////////////
 
-    return lista
+  async gerarListaDeCompilados(lista: any[], periodo: string) {
+    const listaDeCompiladores = await Promise.all(
+      lista.map((servidor) => this.getCompile(servidor.id, periodo))
+    );
+    return listaDeCompiladores;
+  }
 
+
+  async gerarFolhaPorSetor(dados: FolhaPorSetorDto) {
+    const lista = await this.usuarioService.buscarTudo(1, -1, dados.codigoUnidade, "1")
+    const listaDeCompiladores = await this.gerarListaDeCompilados(lista.data, dados.periodo)
+
+    const nomeArquivo = `${listaDeCompiladores[0].unidade}-f-f-i.html`
+    const caminhoHTML = path.join(
+      process.cwd(),
+      'src/folha/templates/folha-setor',
+      nomeArquivo,
+    );
+
+    const listaHTML = await gerarListaHTMLCompilada('infos-funcionario.html', listaDeCompiladores)
+
+    try {
+      await gerarHTMLSetor(nomeArquivo, listaHTML)
+
+
+    } catch (error) {
+      throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
+    }
+
+    return listaDeCompiladores
   }
 
 
