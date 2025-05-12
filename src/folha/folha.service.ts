@@ -97,7 +97,7 @@ export class FolhaService {
 
     try {
       await fs.access(caminhoHTML);
-      await gerarPDFFolhaViaHTML(nomeArquivo);
+      await gerarPDFFolhaViaHTML(nomeArquivo, 'servidor');
     } catch (err) {
       throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
     }
@@ -127,14 +127,15 @@ export class FolhaService {
 
     const listaHTML = await gerarListaHTMLCompilada('infos-funcionario.html', listaDeCompiladores)
 
-    try {
-      await gerarHTMLSetor(nomeArquivo, listaHTML)
+    await gerarHTMLSetor(nomeArquivo, listaHTML)
 
+    try {
+      await fs.access(caminhoHTML);
+      await gerarPDFFolhaViaHTML(nomeArquivo, 'setor')
 
     } catch (error) {
       throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
     }
-
     return listaDeCompiladores
   }
 
