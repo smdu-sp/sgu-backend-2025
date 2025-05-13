@@ -8,6 +8,7 @@ import { gerarFolhaPontoHTML, gerarArquivoHTML, gerarListaHTMLCompilada, gerarHT
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { join } from 'path';
 
 @Global()
 @Injectable()
@@ -78,13 +79,19 @@ export class FolhaService {
     return paramsCompile
   }
 
-
+  async gerarListaDeCompilados(lista: any[], periodo: string) {
+    const listaDeCompiladores = await Promise.all(
+      lista.map((servidor) => this.getCompile(servidor.id, periodo))
+    );
+    return listaDeCompiladores;
+  }
 
   async gerarFolhaIndividual(data: FolhaIndividualDto) {
 
     const paramsCompile = await this.getCompile(data.id, data.periodo)
 
     const nomeArquivo = `${paramsCompile.nome}_f-f-i.html`;
+    const nomeArquivoPDF = nomeArquivo.replace('.html', '.pdf');
     const htmlCompilado = await gerarFolhaPontoHTML(paramsCompile);
 
     await gerarArquivoHTML(htmlCompilado, nomeArquivo);
@@ -97,28 +104,35 @@ export class FolhaService {
 
     try {
       await fs.access(caminhoHTML);
+
+      const pdfDir = join(
+        process.cwd(),
+        'src',
+        'folha',
+        'pdfs',
+      );
+
+      await fs.mkdir(pdfDir, { recursive: true });
+      const pdfPath = join(pdfDir, nomeArquivoPDF);
+
       await gerarPDFFolhaViaHTML(nomeArquivo, 'servidor');
+
+      return {
+        pdfPath,
+        nomeArquivoPDF
+      };
+
     } catch (err) {
       throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
     }
-    return `Folha do ${paramsCompile.nome} foi gerada com sucesso`;
   }
-
-  ////////////////////////////////
-
-  async gerarListaDeCompilados(lista: any[], periodo: string) {
-    const listaDeCompiladores = await Promise.all(
-      lista.map((servidor) => this.getCompile(servidor.id, periodo))
-    );
-    return listaDeCompiladores;
-  }
-
 
   async gerarFolhaPorSetor(dados: FolhaPorSetorDto) {
     const lista = await this.usuarioService.buscarTudo(1, -1, dados.codigoUnidade, "1")
     const listaDeCompiladores = await this.gerarListaDeCompilados(lista.data, dados.periodo)
 
     const nomeArquivo = `${listaDeCompiladores[0].unidade}-f-f-i.html`
+    const nomeArquivoPDF = nomeArquivo.replace('.html', '.pdf');
     const caminhoHTML = path.join(
       process.cwd(),
       'src/folha/templates/folha-setor',
@@ -131,12 +145,27 @@ export class FolhaService {
 
     try {
       await fs.access(caminhoHTML);
+
+      const pdfDir = join(
+        process.cwd(),
+        'src',
+        'folha',
+        'pdfs',
+      )
+
+      await fs.mkdir(pdfDir, { recursive: true });
+      const pdfPath = join(pdfDir, nomeArquivoPDF);
+
       await gerarPDFFolhaViaHTML(nomeArquivo, 'setor')
+
+      return {
+        pdfPath,
+        nomeArquivoPDF
+      };
 
     } catch (error) {
       throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
     }
-    return listaDeCompiladores
   }
 
 
