@@ -1,6 +1,6 @@
 @page {
     size: A4;
-    margin: 0;
+    margin: 10mm;
 }
 
 body {
@@ -11,14 +11,17 @@ body {
 }
 
 .container {
-    width: 206.1mm;
-    height: 312mm;
+    width: 190mm;
+    height: 277mm;
     margin: 0 auto;
     border: none;
     position: relative;
+    /* padding: 10mm; */
+    page-break-after: always;
+    break-after: page;
     page-break-inside: avoid;
     break-inside: avoid;
-    padding: 5mm;
+    display: block;
 }
 
 .logo-container {
@@ -27,6 +30,7 @@ body {
     page-break-after: avoid;
     break-after: avoid;
     page-break-before: avoid;
+    break-before: avoid;
 }
 
 img {
@@ -83,7 +87,6 @@ img {
     margin: 0;
     line-height: 1.2;
     font-weight: bold;
-
 }
 
 .info-row p {
@@ -209,9 +212,8 @@ img {
 }
 
 .signature-section {
-    margin-top: 2mm;
     text-align: center;
-    margin-bottom: 54m;
+    margin-bottom: 0;
     height: 10mm;
     display: flex;
     align-items: center;
@@ -222,7 +224,7 @@ img {
     border-top: 1px solid #000;
     width: 40%;
     margin: 0 auto 1mm;
-    margin-top: 11mm;
+    margin-top: 8mm;
     font-size: 6pt;
 }
 
@@ -236,20 +238,39 @@ img {
     html,
     body {
         width: 210mm;
-        height: 312mm;
-        page-break-inside: avoid;
-        break-inside: avoid;
+        height: 297mm;
+        margin: 0;
+        padding: 0;
     }
 
     body {
-        padding: 5mm;
+        padding: 0;
     }
 
-    .logo-container,
-    .container,
+    .container {
+        page-break-before: always;
+        break-before: page;
+        page-break-after: always;
+        break-after: page;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        height: 297mm;
+        overflow: hidden;
+        display: block;
+        box-sizing: border-box;
+        padding: 0;
+        margin: 2mm 5mm;
+    }
+
+    .container:first-child {
+        page-break-before: auto;
+        break-before: auto;
+    }
+
     .frequency-sheet,
     .day-table,
-    .event-table {
+    .event-table,
+    .signature-section {
         page-break-inside: avoid;
         break-inside: avoid;
     }
