@@ -2,10 +2,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { Global, Injectable } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
-import { FolhaIndividualDto, FolhaPorSetorDto } from './dto/folhas.dto';
+import { FolhaIndividualDto, FolhaPorSetorDto, PdfResponseDto, PdfResponseCleanDto } from './dto/folhas.dto';
 import { UnidadesService } from 'src/unidades/unidades.service';
-import { gerarFolhaPontoHTML, gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor } from './utils/compiladorHTML';
+import { gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor, compilarHTML } from './utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
+import { gerarParametrosDeString } from './utils/geradorDeStrings';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { join } from 'path';
@@ -86,85 +87,62 @@ export class FolhaService {
     return listaDeCompiladores;
   }
 
-  async gerarFolhaIndividual(data: FolhaIndividualDto) {
+  async gerarFolhaIndividual(data: FolhaIndividualDto): Promise<PdfResponseDto> {
+    const paramsCompile = await this.getCompile(data.id, data.periodo);
+    const paramsString = gerarParametrosDeString(paramsCompile.nome, 'servidor');
+    const htmlCompilado = await compilarHTML('template', paramsCompile);
 
-    const paramsCompile = await this.getCompile(data.id, data.periodo)
-
-    const nomeArquivo = `${paramsCompile.nome}_f-f-i.html`;
-    const nomeArquivoPDF = nomeArquivo.replace('.html', '.pdf');
-    const htmlCompilado = await gerarFolhaPontoHTML(paramsCompile);
-
-    await gerarArquivoHTML(htmlCompilado, nomeArquivo);
-
-    const caminhoHTML = path.join(
-      process.cwd(),
-      'src/folha/templates/folha-servidor',
-      nomeArquivo,
-    );
+    await fs.mkdir(path.dirname(paramsString.caminhoHTML), { recursive: true });
+    await gerarArquivoHTML(htmlCompilado, paramsString.nomeArquivoHTML);
 
     try {
-      await fs.access(caminhoHTML);
+      await fs.access(paramsString.caminhoHTML);
 
-      const pdfDir = join(
-        process.cwd(),
-        'src',
-        'folha',
-        'pdfs',
-      );
-
+      const pdfDir = join(process.cwd(), 'src', 'folha', 'pdfs');
       await fs.mkdir(pdfDir, { recursive: true });
-      const pdfPath = join(pdfDir, nomeArquivoPDF);
+      const pdfPath = join(pdfDir, paramsString.nomeArquivoPDF);
 
-      await gerarPDFFolhaViaHTML(nomeArquivo, 'servidor');
+      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'servidor');
 
       return {
         pdfPath,
-        nomeArquivoPDF
+        nomeArquivoPDF: paramsString.nomeArquivoPDF
       };
-
     } catch (err) {
-      throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
+      throw new Error(`Erro ao gerar folha: ${err.message}`);
     }
   }
 
-  async gerarFolhaPorSetor(dados: FolhaPorSetorDto) {
-    const lista = await this.usuarioService.buscarTudo(1, -1, dados.codigoUnidade, "1")
-    const listaDeCompiladores = await this.gerarListaDeCompilados(lista.data, dados.periodo)
+  async gerarFolhaPorSetor(dados: FolhaPorSetorDto): Promise<PdfResponseDto> {
+    const lista = await this.usuarioService.buscarTudo(1, -1, dados.codigoUnidade, "1");
+    const listaDeCompiladores = await this.gerarListaDeCompilados(lista.data, dados.periodo);
 
-    const nomeArquivo = `${listaDeCompiladores[0].unidade}-f-f-i.html`
-    const nomeArquivoPDF = nomeArquivo.replace('.html', '.pdf');
-    const caminhoHTML = path.join(
-      process.cwd(),
-      'src/folha/templates/folha-setor',
-      nomeArquivo,
+    const paramsString = gerarParametrosDeString(
+      `${listaDeCompiladores[0].unidade}`,
+      'setor'
     );
 
-    const listaHTML = await gerarListaHTMLCompilada('infos-funcionario.html', listaDeCompiladores)
+    const listaHTML = await gerarListaHTMLCompilada('infos-funcionario.html', listaDeCompiladores);
 
-    await gerarHTMLSetor(nomeArquivo, listaHTML)
+    await fs.mkdir(path.dirname(paramsString.caminhoHTML), { recursive: true });
+    await gerarHTMLSetor(paramsString.nomeArquivoHTML, listaHTML);
 
     try {
-      await fs.access(caminhoHTML);
+      await fs.access(paramsString.caminhoHTML);
 
-      const pdfDir = join(
-        process.cwd(),
-        'src',
-        'folha',
-        'pdfs',
-      )
-
+      const pdfDir = join(process.cwd(), 'src', 'folha', 'pdfs');
       await fs.mkdir(pdfDir, { recursive: true });
-      const pdfPath = join(pdfDir, nomeArquivoPDF);
+      const pdfPath = join(pdfDir, paramsString.nomeArquivoPDF);
 
-      await gerarPDFFolhaViaHTML(nomeArquivo, 'setor')
+      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'setor');
 
       return {
         pdfPath,
-        nomeArquivoPDF
+        nomeArquivoPDF: paramsString.nomeArquivoPDF
       };
 
     } catch (error) {
-      throw new Error(`Arquivo HTML não encontrado em: ${caminhoHTML}`);
+      throw new Error(`Erro ao gerar folha de setor: ${error.message}`);
     }
   }
 

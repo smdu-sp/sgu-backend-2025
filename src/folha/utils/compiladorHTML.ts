@@ -23,10 +23,6 @@ export async function compilarHTML(nomeTemplate: string, data: any) {
     return template(data);
 }
 
-export async function gerarFolhaPontoHTML(data: any): Promise<string> {
-    return compilarHTML('template', data);
-}
-
 export async function gerarArquivoHTML(conteudo: string, nomeArquivo: string): Promise<void> {
     const caminhoHTML = path.join(templatesServidorDir, nomeArquivo);
     await fs.writeFile(caminhoHTML, conteudo);
@@ -35,15 +31,13 @@ export async function gerarArquivoHTML(conteudo: string, nomeArquivo: string): P
 export async function gerarListaHTMLCompilada(nomeTemplate: string, lista: any[]): Promise<string[]> {
     const templatePath = path.join(templatesSetorDir, nomeTemplate);
     const templateContent = await fs.readFile(templatePath, 'utf-8');
-
     const compilarTemplate = handlebars.compile(templateContent);
 
     return lista.map(item => compilarTemplate(item));
 }
 
-export async function gerarHTMLSetor(nomeArquivo: string, listaHTML: any[]) {
+export async function gerarHTMLSetor(nomeArquivo: string, listaHTML: any[]): Promise<void> {
     const folhas = listaHTML.join('\n')
-
     const templateSetorPath = path.join(templatesSetorDir, 'template.html');
 
     const createPagesSetorPath = path.join(
@@ -52,10 +46,7 @@ export async function gerarHTMLSetor(nomeArquivo: string, listaHTML: any[]) {
     )
 
     const templateSetorContent = await fs.readFile(templateSetorPath, 'utf-8')
-
     const compilarTemplate = handlebars.compile(templateSetorContent);
-
     const folhasUnidasHTML = compilarTemplate({ folhas })
-
     await fs.writeFile(createPagesSetorPath, folhasUnidasHTML)
 }

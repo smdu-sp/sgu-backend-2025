@@ -7,3 +7,14 @@ export class FolhaPorSetorDto {
     codigoUnidade: string;
     periodo?: string
 }
+
+export class PdfResponseDto {
+    pdfPath: string;
+    nomeArquivoPDF: string
+}
+
+export type cleanArquivos = () => Promise<void>
+
+export class PdfResponseCleanDto extends PdfResponseDto {
+    cleanup?: cleanArquivos
+}
