@@ -4,56 +4,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="../../../../public/style.css">
     <title>Folha de Frequência Individual - F.F.I.</title>
 </head>
 
 <body>
-    <div class="logo-container">
-        <img src="../assets/logosp.webp" alt="Logo Oficial da Cidade de São Paulo" />
-    </div>
+
 
     <div class="container">
+        <div class="logo-container">
+            <img src={{logo}} alt="Logo Oficial da Cidade de São Paulo" />
+        </div>
         <div class="header-section">
             <div class="secretaria">
-                <p>SECRETARIA MUNICIPAL DE URBANISMO E LICENCIAMENTO</p>
+                <p>29 - SECRETARIA MUNICIPAL DE URBANISMO E LICENCIAMENTO</p>
             </div>
-
             <div class="title-section">
                 <h1>FOLHA DE FREQUÊNCIA INDIVIDUAL - F. F. I.</h1>
             </div>
-
             <div class="info-section">
                 <div class="info-row">
+                    <p><span><strong>NOME:</strong></span> {{nome}} </p>
+                    <p><span><strong>RF:</strong> {{rf}}</span> - <span><strong>VÍNCULO:</strong></span> {{vinculo}}</p>
+                </div>
+                <div class="info-row">
                     <div class="info-item">
-                        <p><span>NOME:</span> {{nome}} </p>
-                    </div>
-                    <div class="info-item">
-                        <p><span>RF: {{rf}}</span> - <span>VÍNCULO:</span> {{vinculo}}</p>
+                        <p><span><strong>EH:</strong></span> {{eh}}</p>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-item">
-                        <p><span>EH:</span> {{eh}}</p>
+                        <p><span><strong>UNIDADE: </strong></span>{{unidade}} </p>
                     </div>
                 </div>
                 <div class="info-row">
                     <div class="info-item">
-                        <p><span>UNIDADE:</span>{{unidade}} </p>
-                    </div>
-                </div>
-                <div class="info-row">
-                    <div class="info-item">
-                        <p><span>MÊS / ANO REFERENCIA:</span> {{data}}</p>
+                        <p><span><strong>MÊS / ANO REFERENCIA:</strong></span> {{periodo}}</p>
                     </div>
                 </div>
             </div>
-
             <div class="horario-section">
                 <p>HORÁRIO: _______:_______ às _______:_______</p>
             </div>
         </div>
-
         <div class="frequency-sheet">
             <table class="day-table">
                 <thead>
@@ -356,8 +349,6 @@
                 </tbody>
             </table>
 
-            <div class="separator"></div>
-
             <div class="apontamento-section">
                 <h2>APONTAMENTO</h2>
 
@@ -415,13 +406,33 @@
                             <td></td>
                             <td></td>
                         </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
 
             <div class="signature-section">
                 <div class="signature-line"></div>
-                <p>Carimbo e assinatura da Chefia Imediata</p>
+                <p><strong>Carimbo e assinatura da Chefia Imediata</strong></p>
             </div>
         </div>
     </div>

@@ -9,11 +9,18 @@ import { RoleGuard } from './auth/guards/role.guard';
 import { FuncionariosModule } from './funcionarios/funcionarios.module';
 import { FolhaModule } from './folha/folha.module';
 import { UnidadesModule } from './unidades/unidades.module';
+import { FeriadosModule } from './feriados/feriados.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Global()
 @Module({
   exports: [AppService],
-  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, UnidadesModule],
+  imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, UnidadesModule, FeriadosModule, ServeStaticModule.forRoot({
+    rootPath: join(__dirname, '..', 'public'), 
+    serveRoot: '/'
+  }),
+],
   providers: [AppService,
     {
       provide: APP_GUARD,
