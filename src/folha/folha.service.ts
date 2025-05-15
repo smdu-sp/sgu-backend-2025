@@ -106,7 +106,8 @@ export class FolhaService {
 
       return {
         pdfPath,
-        nomeArquivoPDF: paramsString.nomeArquivoPDF
+        nomeArquivoPDF: paramsString.nomeArquivoPDF,
+        htmlPath: paramsString.caminhoHTML,
       };
     } catch (err) {
       throw new Error(`Erro ao gerar folha: ${err.message}`);
@@ -133,12 +134,13 @@ export class FolhaService {
       const pdfDir = join(process.cwd(), 'src', 'folha', 'pdfs');
       await fs.mkdir(pdfDir, { recursive: true });
       const pdfPath = join(pdfDir, paramsString.nomeArquivoPDF);
-
       await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'setor');
 
       return {
         pdfPath,
-        nomeArquivoPDF: paramsString.nomeArquivoPDF
+        nomeArquivoPDF: paramsString.nomeArquivoPDF,
+        htmlPath: paramsString.caminhoHTML
+
       };
 
     } catch (error) {

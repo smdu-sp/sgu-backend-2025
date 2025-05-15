@@ -11,16 +11,17 @@ import { FolhaModule } from './folha/folha.module';
 import { UnidadesModule } from './unidades/unidades.module';
 import { FeriadosModule } from './feriados/feriados.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { join } from 'path';
 
 @Global()
 @Module({
   exports: [AppService],
   imports: [PrismaModule, AuthModule, UsuariosModule, FuncionariosModule, FolhaModule, UnidadesModule, FeriadosModule, ServeStaticModule.forRoot({
-    rootPath: join(__dirname, '..', 'public'), 
+    rootPath: join(__dirname, '..', 'public'),
     serveRoot: '/'
-  }),
-],
+  }), EventEmitterModule.forRoot(),
+  ],
   providers: [AppService,
     {
       provide: APP_GUARD,
