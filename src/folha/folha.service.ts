@@ -26,11 +26,14 @@ export class FolhaService {
       const [mesParam, anoParam] = dataString.split(/[\/-]/).map(Number);
       const dataPonto = new Date(anoParam, mesParam - 1, 1);
 
-      const ano = dataPonto.getFullYear();
-      const mes = dataPonto.toLocaleDateString('pt-BR', { month: 'long' });
+      const ano = (dataPonto.getFullYear()).toString();
+      let mes = (dataPonto.getMonth() + 1).toString();
+      if (Number(mes) <= 9) {
+        mes = `0${mes}`
+      }
       return {
-        mes: mes.charAt(0).toUpperCase() + mes.slice(1),
-        ano: ano.toString(),
+        mes,
+        ano,
       };
     } else {
       const dataPonto = new Date();
