@@ -9,7 +9,6 @@ import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import { gerarParametrosDeString } from './utils/geradorDeStrings';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { join } from 'path';
 
 @Global()
 @Injectable()
