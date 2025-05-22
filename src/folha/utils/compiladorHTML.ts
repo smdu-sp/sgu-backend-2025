@@ -2,23 +2,23 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import * as handlebars from "handlebars";
 
-const templatesServidorDir = path.join(
-    process.cwd(),
-    process.env.NODE_ENV === 'production'
-        ? 'dist/src/folha/templates/folha-servidor'
-        : 'src/folha/templates/folha-servidor'
+const templatesServidorDir = path.join(process.cwd(),
+    'src',
+    'folha',
+    'templates',
+    'folha-servidor'
 );
 
-const templatesSetorDir = path.join(
-    process.cwd(),
-    process.env.NODE_ENV === 'production'
-        ? 'dist/src/folha/templates/folha-setor'
-        : 'src/folha/templates/folha-setor'
+const templatesSetorDir = path.join(process.cwd(),
+    'src',
+    'folha',
+    'templates',
+    'folha-setor'
 );
 
 export async function compilarHTML(nomeTemplate: string, data: any) {
-    const templatepath = path.join(templatesServidorDir, `${nomeTemplate}.html`);
-    const templateContent = await fs.readFile(templatepath, 'utf-8');
+    const templatePath = path.join(templatesServidorDir, `${nomeTemplate}.html`);
+    const templateContent = await fs.readFile(templatePath, 'utf-8');
     const template = handlebars.compile(templateContent);
     return template(data);
 }
