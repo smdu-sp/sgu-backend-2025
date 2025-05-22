@@ -101,7 +101,7 @@ export class FolhaService {
     try {
       await fs.access(paramsString.caminhoHTML);
       await fs.mkdir(paramsString.pdfDir, { recursive: true });
-      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'servidor');
+      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, paramsString.caminhoHTML, paramsString.caminhoPDF, 'servidor');
 
       return {
         pdfPath: paramsString.caminhoPDF,
@@ -129,17 +129,13 @@ export class FolhaService {
 
     try {
       await fs.access(paramsString.caminhoHTML);
-
-      const pdfDir = join(process.cwd(), 'src', 'folha', 'pdfs');
-      await fs.mkdir(pdfDir, { recursive: true });
-      const pdfPath = join(pdfDir, paramsString.nomeArquivoPDF);
-      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'setor');
-
+      await fs.mkdir(paramsString.pdfDir, { recursive: true });
+      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, paramsString.caminhoHTML, paramsString.caminhoPDF, 'setor');
+      await fs.access(paramsString.caminhoPDF)
       return {
-        pdfPath,
+        pdfPath: paramsString.caminhoPDF,
         nomeArquivoPDF: paramsString.nomeArquivoPDF,
         htmlPath: paramsString.caminhoHTML
-
       };
 
     } catch (error) {

@@ -2,14 +2,11 @@ import { chromium } from 'playwright';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
-export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string, contexto: string) {
+export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string, caminhoHTML: string, caminhoPDF: string, contexto: string) {
   try {
     let templatesDir = contexto === 'servidor'
       ? path.join(process.cwd(), 'src/folha/templates/folha-servidor')
       : path.join(process.cwd(), 'src/folha/templates/folha-setor');
-
-    const pdfDir = path.join(process.cwd(), 'src/folha/pdfs');
-    const caminhoHTML = path.join(templatesDir, nomeArquivoHtml);
 
     await fs.access(caminhoHTML);
 
@@ -23,7 +20,6 @@ export async function gerarPDFFolhaViaHTML(nomeArquivoHtml: string, contexto: st
     await page.addStyleTag({ path: caminhoCSS });
 
     const nomeArquivoPDF = nomeArquivoHtml.replace('.html', '.pdf');
-    const caminhoPDF = path.join(pdfDir, nomeArquivoPDF);
 
     await page.pdf({
       path: caminhoPDF,
