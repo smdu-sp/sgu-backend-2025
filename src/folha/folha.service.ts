@@ -7,6 +7,7 @@ import { UnidadesService } from 'src/unidades/unidades.service';
 import { gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor, compilarHTML } from './utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import { gerarParametrosDeString } from './utils/geradorDeStrings';
+import { calcularDiasNaoUteis } from './utils/calcularDiasNaoUteis';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -92,6 +93,8 @@ export class FolhaService {
   async gerarFolhaIndividual(data: FolhaIndividualDto): Promise<PdfResponseDto> {
     const paramsCompile = await this.getCompile(data.id, data.periodo);
     const paramsString = gerarParametrosDeString(paramsCompile.nome, 'servidor');
+    const diasNaoUteis = calcularDiasNaoUteis(paramsCompile.periodo);
+    console.log(diasNaoUteis)
     const htmlCompilado = await compilarHTML('template', paramsCompile);
 
     await fs.mkdir(path.dirname(paramsString.caminhoHTML), { recursive: true });
