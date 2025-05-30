@@ -7,9 +7,9 @@ import { UnidadesService } from 'src/unidades/unidades.service';
 import { gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor, compilarHTML } from './utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import { gerarParametrosDeString } from './utils/geradorDeStrings';
+import { calcularDiasNaoUteis } from './utils/calcularDiasNaoUteis';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { join } from 'path';
 
 @Global()
 @Injectable()
@@ -26,11 +26,14 @@ export class FolhaService {
       const [mesParam, anoParam] = dataString.split(/[\/-]/).map(Number);
       const dataPonto = new Date(anoParam, mesParam - 1, 1);
 
-      const ano = dataPonto.getFullYear();
-      const mes = dataPonto.toLocaleDateString('pt-BR', { month: 'long' });
+      const ano = (dataPonto.getFullYear()).toString();
+      let mes = (dataPonto.getMonth() + 1).toString();
+      if (Number(mes) <= 9) {
+        mes = `0${mes}`
+      }
       return {
-        mes: mes.charAt(0).toUpperCase() + mes.slice(1),
-        ano: ano.toString(),
+        mes,
+        ano,
       };
     } else {
       const dataPonto = new Date();
@@ -90,6 +93,8 @@ export class FolhaService {
   async gerarFolhaIndividual(data: FolhaIndividualDto): Promise<PdfResponseDto> {
     const paramsCompile = await this.getCompile(data.id, data.periodo);
     const paramsString = gerarParametrosDeString(paramsCompile.nome, 'servidor');
+    const diasNaoUteis = calcularDiasNaoUteis(paramsCompile.periodo);
+    console.log(diasNaoUteis)
     const htmlCompilado = await compilarHTML('template', paramsCompile);
 
     await fs.mkdir(path.dirname(paramsString.caminhoHTML), { recursive: true });
@@ -97,16 +102,13 @@ export class FolhaService {
 
     try {
       await fs.access(paramsString.caminhoHTML);
-
-      const pdfDir = join(process.cwd(), 'src', 'folha', 'pdfs');
-      await fs.mkdir(pdfDir, { recursive: true });
-      const pdfPath = join(pdfDir, paramsString.nomeArquivoPDF);
-
-      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'servidor');
+      await fs.mkdir(paramsString.pdfDir, { recursive: true });
+      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, paramsString.caminhoHTML, paramsString.caminhoPDF, 'servidor');
 
       return {
-        pdfPath,
-        nomeArquivoPDF: paramsString.nomeArquivoPDF
+        pdfPath: paramsString.caminhoPDF,
+        nomeArquivoPDF: paramsString.nomeArquivoPDF,
+        htmlPath: paramsString.caminhoHTML,
       };
     } catch (err) {
       throw new Error(`Erro ao gerar folha: ${err.message}`);
@@ -129,22 +131,18 @@ export class FolhaService {
 
     try {
       await fs.access(paramsString.caminhoHTML);
-
-      const pdfDir = join(process.cwd(), 'src', 'folha', 'pdfs');
-      await fs.mkdir(pdfDir, { recursive: true });
-      const pdfPath = join(pdfDir, paramsString.nomeArquivoPDF);
-
-      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, 'setor');
-
+      await fs.mkdir(paramsString.pdfDir, { recursive: true });
+      await gerarPDFFolhaViaHTML(paramsString.nomeArquivoHTML, paramsString.caminhoHTML, paramsString.caminhoPDF, 'setor');
+      await fs.access(paramsString.caminhoPDF)
       return {
-        pdfPath,
-        nomeArquivoPDF: paramsString.nomeArquivoPDF
+        pdfPath: paramsString.caminhoPDF,
+        nomeArquivoPDF: paramsString.nomeArquivoPDF,
+        htmlPath: paramsString.caminhoHTML
       };
 
     } catch (error) {
       throw new Error(`Erro ao gerar folha de setor: ${error.message}`);
     }
   }
-
 
 }

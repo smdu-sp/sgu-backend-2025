@@ -4,6 +4,8 @@ class ParametrosDeStringDTO {
     caminhoHTML: string;
     nomeArquivoHTML: string;
     nomeArquivoPDF: string
+    caminhoPDF?: string;
+    pdfDir?: string;
 }
 
 export function gerarParametrosDeString(nomeArquivo: string, categoria: string): ParametrosDeStringDTO {
@@ -16,7 +18,9 @@ export function gerarParametrosDeString(nomeArquivo: string, categoria: string):
 
     return {
         caminhoHTML: join(process.cwd(), caminhoBase, nomeArquivoHTML),
+        caminhoPDF: join(process.cwd(), 'src', 'folha', 'pdfs', nomeArquivoPDF),
         nomeArquivoHTML,
-        nomeArquivoPDF
+        nomeArquivoPDF,
+        pdfDir: join(process.cwd(), 'src', 'folha', 'pdfs'),
     };
 }

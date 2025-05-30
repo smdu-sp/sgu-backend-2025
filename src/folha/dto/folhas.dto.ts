@@ -11,6 +11,7 @@ export class FolhaPorSetorDto {
 export class PdfResponseDto {
     pdfPath: string;
     nomeArquivoPDF: string
+    htmlPath?: string
 }
 
 export type cleanArquivos = () => Promise<void>

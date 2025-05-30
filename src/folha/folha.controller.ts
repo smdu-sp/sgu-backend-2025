@@ -3,32 +3,42 @@ import { Response } from 'express';
 import { FolhaService } from './folha.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { createReadStream } from 'fs';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 
 @ApiTags('Folhas')
 @ApiBearerAuth()
 @Controller('folhas')
 export class FolhaController {
-  constructor(private folhaService: FolhaService) { }
+  constructor(
+    private folhaService: FolhaService,
+    private eventEmitter: EventEmitter2,
+  ) { }
 
   @Post(['folha-individual/:userId', 'folha-individual/:userId/:periodo'])
   @Header('Content-Type', 'application/pdf')
   async gerarFolhaIndividual(
     @Param('userId') userId: string,
     @Param('periodo') periodo?: string,
-    @Res({ passthrough: true }) res?: Response
+    @Res({ passthrough: false }) res?: Response,
   ) {
-    const { pdfPath, nomeArquivoPDF } = await this.folhaService.gerarFolhaIndividual({
+    const { pdfPath, nomeArquivoPDF, htmlPath } = await this.folhaService.gerarFolhaIndividual({
       id: userId,
-      periodo: periodo
+      periodo,
     });
 
-    res.set({
-      'Content-Disposition': `attachment; filename="${nomeArquivoPDF}"`
-    });
+    res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivoPDF}"`);
+    res.setHeader('Content-Type', 'application/pdf');
 
-    const fileStream = createReadStream(pdfPath);
-    return new StreamableFile(fileStream);
+    const stream = createReadStream(pdfPath);
+    stream.pipe(res);
+
+    res.on('finish', () => {
+      this.eventEmitter.emit('folha.gerada', {
+        pdfPath,
+        htmlPath,
+      });
+    });
   }
 
   @Post(['folha-setor/:codigoUnidade', 'folha-setor/:codigoUnidade/:periodo'])
@@ -36,21 +46,25 @@ export class FolhaController {
   async gerarFolhaPorSetor(
     @Param('codigoUnidade') codigoUnidade: string,
     @Param('periodo') periodo?: string,
-    @Res({ passthrough: true }) res?: Response,
+    @Res({ passthrough: false }) res?: Response,
   ) {
-
-    const { pdfPath, nomeArquivoPDF } = await this.folhaService.gerarFolhaPorSetor({
+    const { pdfPath, nomeArquivoPDF, htmlPath } = await this.folhaService.gerarFolhaPorSetor({
       codigoUnidade,
-      periodo: periodo
+      periodo,
     });
 
-    res.set({
-      'Content-Disposition': `attachment; filename="${nomeArquivoPDF}"`
-    });
+    res.setHeader('Content-Disposition', `attachment; filename="${nomeArquivoPDF}"`);
+    res.setHeader('Content-Type', 'application/pdf');
 
     const fileStream = createReadStream(pdfPath);
-    return new StreamableFile(fileStream);
+    fileStream.pipe(res);
 
+    res.on('finish', () => {
+      this.eventEmitter.emit('folha.gerada', {
+        pdfPath,
+        htmlPath,
+      });
+    });
   }
 
 }
