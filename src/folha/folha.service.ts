@@ -8,6 +8,7 @@ import { gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor, compilarHTML
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import { gerarParametrosDeString } from './utils/geradorDeStrings';
 import { calcularDiasNaoUteis } from './utils/calcularDiasNaoUteis';
+import { injetarLinhasEmLista } from './templates/utils/injetarLinhasNoCompilador';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -96,7 +97,6 @@ export class FolhaService {
     const paramsCompile = await this.getCompile(data.id, data.periodo);
     const paramsString = gerarParametrosDeString(paramsCompile.nome, 'servidor');
     const diasNaoUteis = calcularDiasNaoUteis(paramsCompile.periodo);
-    console.log(diasNaoUteis)
     const htmlCompilado = await compilarHTML('template', paramsCompile);
 
     await fs.mkdir(path.dirname(paramsString.caminhoHTML), { recursive: true });
@@ -120,13 +120,14 @@ export class FolhaService {
   async gerarFolhaPorSetor(dados: FolhaPorSetorDto): Promise<PdfResponseDto> {
     const lista = await this.usuarioService.buscarTudo(1, -1, dados.codigoUnidade, "1");
     const listaDeCompiladores = await this.gerarListaDeCompilados(lista.data, dados.periodo);
-
+    const listaDeLinhasCompiladas = injetarLinhasEmLista(listaDeCompiladores);
     const paramsString = gerarParametrosDeString(
       `${listaDeCompiladores[0].unidade}`,
       'setor'
     );
 
-    const listaHTML = await gerarListaHTMLCompilada('infos-funcionario.html', listaDeCompiladores);
+    const listaHTML = await gerarListaHTMLCompilada('infos-funcionario.html', listaDeLinhasCompiladas);
+
 
     await fs.mkdir(path.dirname(paramsString.caminhoHTML), { recursive: true });
     await gerarHTMLSetor(paramsString.nomeArquivoHTML, listaHTML);

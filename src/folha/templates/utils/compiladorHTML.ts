@@ -3,6 +3,7 @@ import * as path from "path";
 import * as handlebars from "handlebars";
 import { CompiladorDto } from "./dto/compilador.dto";
 import { geradorDeLinhas } from "./geradorDeLinhas";
+import { injetarLinhasNoCompilador, injetarLinhasEmLista } from "./injetarLinhasNoCompilador";
 
 
 
@@ -23,10 +24,9 @@ const templatesSetorDir = path.join(process.cwd(),
 export async function compilarHTML(nomeTemplate: string, data: CompiladorDto) {
     const templatePath = path.join(templatesServidorDir, `${nomeTemplate}.html`);
     const templateContent = await fs.readFile(templatePath, 'utf-8');
-    const linhas = geradorDeLinhas(data.linhas)
-    data.linhas = linhas
+    const compiladorFinal = injetarLinhasNoCompilador(data);
     const template = handlebars.compile(templateContent);
-    return template(data);
+    return template(compiladorFinal);
 }
 
 export async function gerarArquivoHTML(conteudo: string, nomeArquivo: string): Promise<void> {
