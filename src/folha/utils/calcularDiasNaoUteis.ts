@@ -1,5 +1,12 @@
 
 export function calcularDiasNaoUteis(periodo: string) {
+    if (!periodo) {
+        const dataAtual = new Date()
+        const ano = (dataAtual.getFullYear()).toString();
+        let mes = (dataAtual.getMonth() + 1).toString();
+        periodo = `${mes}/${ano}`
+    }
+
     const [mes, ano] = periodo.split(/[\/-]/).map(Number);
     const diasNaoUteis = [];
     const diasNoMes = new Date(ano, mes, 0).getDate();
@@ -16,7 +23,6 @@ export function calcularDiasNaoUteis(periodo: string) {
     for (let i = 31; diasNoMes < i; i--) {
         diasNaoUteis.push(i)
     }
-
     return diasNaoUteis;
 }
 
