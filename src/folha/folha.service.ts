@@ -4,7 +4,7 @@ import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { FuncionariosService } from 'src/funcionarios/funcionarios.service';
 import { FolhaIndividualDto, FolhaPorSetorDto, PdfResponseDto, PdfResponseCleanDto } from './dto/folhas.dto';
 import { UnidadesService } from 'src/unidades/unidades.service';
-import { gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor, compilarHTML } from './utils/compiladorHTML';
+import { gerarArquivoHTML, gerarListaHTMLCompilada, gerarHTMLSetor, compilarHTML } from './templates/utils/compiladorHTML';
 import { gerarPDFFolhaViaHTML } from './utils/playwright';
 import { gerarParametrosDeString } from './utils/geradorDeStrings';
 import { calcularDiasNaoUteis } from './utils/calcularDiasNaoUteis';
@@ -53,6 +53,7 @@ export class FolhaService {
   async getCompile(userId: string, periodo: string) {
 
     const mesAno = this.getMesAno(periodo);
+    const diasNaoUteis = calcularDiasNaoUteis(periodo)
     const user = await this.usuarioService.buscarPorId(userId)
     const funcionario = await this.funcionarioService.buscarPorId(userId)
     const unidade = await this.unidadeService.buscarPorCodigo(
@@ -78,6 +79,7 @@ export class FolhaService {
       unidade: unidade.nome,
       vinculo: '1',
       logo: logoDataURI,
+      linhas: diasNaoUteis,
     };
 
     return paramsCompile

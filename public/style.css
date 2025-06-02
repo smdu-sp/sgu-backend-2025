@@ -133,6 +133,10 @@ img {
     font-size: 8.5pt;
 }
 
+.day-table-weekend {
+    background-color: #BEBEBE;
+}
+
 .day-table th,
 .day-table td,
 .event-table th,
