@@ -1,5 +1,10 @@
+import * as Holidays from "date-holidays";
 
 export function calcularDiasNaoUteis(periodo: string) {
+    const feriados = new (Holidays as any)();
+
+    feriados.init('BR', 'SP', 'sp');
+
     if (!periodo) {
         const dataAtual = new Date()
         const ano = (dataAtual.getFullYear()).toString();
@@ -16,6 +21,10 @@ export function calcularDiasNaoUteis(periodo: string) {
         const diaSemana = data.getDay();
 
         if (diaSemana === 0 || diaSemana === 6) {
+            diasNaoUteis.push(dia);
+        }
+
+        if (feriados.isHoliday(data)) {
             diasNaoUteis.push(dia);
         }
     }
